@@ -44,7 +44,6 @@ const Row: React.FC<RowProps> = ({ guessWord, rowIndex, currentRow }) => {
 
   useEffect(() => {
     if (currentRow === rowIndex && divRef.current) {
-      console.log(divRef.current);
       setIsActive(true);
       divRef.current.focus();
     } else if (divRef.current) {
@@ -55,6 +54,20 @@ const Row: React.FC<RowProps> = ({ guessWord, rowIndex, currentRow }) => {
       document.removeEventListener("click", handleClickOutside, true);
     };
   }, [currentRow, rowIndex, handleClickOutside]);
+
+  const checkIsComplete = (
+    word: { id: number; letter: string; status: string }[]
+  ) => {
+    let wordToCheck: string[] = [];
+    word.forEach((letter) => {
+      if (letter.letter !== " ") {
+        wordToCheck.push(letter.letter);
+      } else wordToCheck.push(" ");
+    });
+    if (wordToCheck.join().indexOf(" ") > -1) {
+      return false;
+    } else return true;
+  };
 
   const handleKeyPress = (e: KeyboardEvent) => {
     let newLetters;
@@ -74,7 +87,7 @@ const Row: React.FC<RowProps> = ({ guessWord, rowIndex, currentRow }) => {
             } else currId.current--;
           }
         }
-      } else if (e.key === "Enter" && !isGuessed) {
+      } else if (e.key === "Enter" && !isGuessed && checkIsComplete(letters)) {
         guessWord(letters);
         setIsGuessed(true);
         setIsActive(false);
