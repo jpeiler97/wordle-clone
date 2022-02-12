@@ -4,12 +4,11 @@ import Letter from "./Letter";
 type RowProps = {
   guessWord: Function;
   rowIndex: number;
+  isCurrentRow: Function;
+  currentRow: any;
 };
 
-const Row: React.FC<RowProps> = ({ guessWord, rowIndex }) => {
-  //   const [length, setLength] = useState<number>(0);
-  //   const [isFull, setIsFull] = useState<boolean>(false);
-  //   const [input, setInput] = useState("");
+const Row: React.FC<RowProps> = ({ guessWord, rowIndex, currentRow }) => {
   const [letters, setLetters] = useState<
     { id: number; letter: string; status: string }[]
   >([
@@ -21,54 +20,62 @@ const Row: React.FC<RowProps> = ({ guessWord, rowIndex }) => {
   ]);
   const [isFrozen, setFrozen] = useState<boolean>(false);
   const [isGuessed, setIsGuessed] = useState<boolean>(false);
+  const [isActive, setIsActive] = useState<boolean>(false);
 
   const currId = useRef(0);
-  const currentDiv = useRef<HTMLDivElement>(null);
+  const divRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (currentDiv.current) {
-      currentDiv.current.focus();
+    console.log("row index: " + rowIndex + "currentRow: " + currentRow);
+    if (currentRow === rowIndex && divRef.current) {
+      setIsActive(true);
+      divRef.current.focus();
+    } else if (divRef.current) {
+      divRef.current.blur();
     }
-  });
+  }, [currentRow, rowIndex]);
 
   const handleKeyPress = (e: KeyboardEvent) => {
     let newLetters;
-    if (e.key === "Backspace") {
-      if (!isGuessed) {
-        newLetters = letters.map((letter) => {
-          return currId.current === letter.id
-            ? { ...letter, id: letter.id, letter: " " }
-            : letter;
-        });
-        setLetters(newLetters);
-        if (currId.current > 0) {
-          if (currId.current === 4) {
-            setFrozen(false);
-            currId.current--;
-          } else currId.current--;
-        }
-      }
-    } else if (e.key === "Enter" && !isGuessed) {
-      guessWord(letters);
-      setIsGuessed(true);
-    } else {
-      if (!isFrozen) {
-        if (e.keyCode >= 65 && e.keyCode <= 90) {
+    if (isActive) {
+      if (e.key === "Backspace") {
+        if (!isGuessed) {
           newLetters = letters.map((letter) => {
             return currId.current === letter.id
-              ? {
-                  ...letter,
-                  id: letter.id,
-                  letter: e.key.toString().toUpperCase(),
-                }
+              ? { ...letter, id: letter.id, letter: " " }
               : letter;
           });
           setLetters(newLetters);
-          if (currId.current < letters.length) {
-            currId.current++;
-            if (currId.current === letters.length) {
-              setFrozen(true);
-              currId.current = 4;
+          if (currId.current > 0) {
+            if (currId.current === 4) {
+              setFrozen(false);
+              currId.current--;
+            } else currId.current--;
+          }
+        }
+      } else if (e.key === "Enter" && !isGuessed) {
+        guessWord(letters);
+        setIsGuessed(true);
+        setIsActive(false);
+      } else {
+        if (!isFrozen) {
+          if (e.keyCode >= 65 && e.keyCode <= 90) {
+            newLetters = letters.map((letter) => {
+              return currId.current === letter.id
+                ? {
+                    ...letter,
+                    id: letter.id,
+                    letter: e.key.toString().toUpperCase(),
+                  }
+                : letter;
+            });
+            setLetters(newLetters);
+            if (currId.current < letters.length) {
+              currId.current++;
+              if (currId.current === letters.length) {
+                setFrozen(true);
+                currId.current = 4;
+              }
             }
           }
         }
@@ -78,13 +85,20 @@ const Row: React.FC<RowProps> = ({ guessWord, rowIndex }) => {
 
   return (
     <div
-      tabIndex={0}
+      key={rowIndex}
+      tabIndex={-1}
       onKeyDown={(e) => handleKeyPress(e)}
-      ref={currentDiv}
       className="row"
+      ref={divRef}
     >
       {letters.map((letter) => {
-        return <Letter letter={letter.letter} status={letter.status}></Letter>;
+        return (
+          <Letter
+            key={letter.id}
+            letter={letter.letter}
+            status={letter.status}
+          ></Letter>
+        );
       })}
     </div>
   );

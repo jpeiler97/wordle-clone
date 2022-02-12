@@ -10,6 +10,7 @@ const WordGrid: React.FC = () => {
   const [correctString, setCorrectString] = useState<string>("");
   const [guessedWords, setGuessedWords] = useState<string[]>([]);
   const [rows, setRows] = useState<object[]>([{}, {}, {}, {}, {}, {}]);
+  const [currentRow, setCurrentRow] = useState(0);
 
   const guessWord = (
     word: { id: number; letter: string; status: string }[]
@@ -18,24 +19,24 @@ const WordGrid: React.FC = () => {
       word.forEach((guessedLetter) => {
         if (guessedLetter.id === letter.id) {
           if (guessedLetter.letter === letter.letter) {
-            console.log(
-              `#${guessedLetter.id + 1} ${guessedLetter.letter} is correct!`
-            );
             guessedLetter.status = "correct";
           } else if (correctString.indexOf(guessedLetter.letter) > -1) {
-            console.log(
-              `#${guessedLetter.id + 1} ${guessedLetter.letter} is somewhere!`
-            );
             guessedLetter.status = "partial";
           } else {
-            console.log(
-              `#${guessedLetter.id + 1} ${guessedLetter.letter} is wrong!`
-            );
             guessedLetter.status = "incorrect";
           }
         }
       });
     });
+    setCurrentRow(currentRow + 1);
+  };
+
+  const isCurrentRow = (index: any) => {
+    if (index === currentRow) {
+      return true;
+    } else {
+      return false;
+    }
   };
 
   useEffect(() => {
@@ -52,19 +53,48 @@ const WordGrid: React.FC = () => {
 
   return (
     <div className="word-grid">
-      {/* {rows.map((row) => {
-        return <Row></Row>;
-      })}
-      <button>Submit answer</button>
-      {guessedWords.map((word) => {
-        return <div>{word}</div>;
-      })} */}
-      <Row guessWord={guessWord} rowIndex={0}></Row>
-      <Row guessWord={guessWord} rowIndex={1}></Row>
-      <Row guessWord={guessWord} rowIndex={3}></Row>
-      <Row guessWord={guessWord} rowIndex={4}></Row>
-      <Row guessWord={guessWord} rowIndex={5}></Row>
-      <Row guessWord={guessWord} rowIndex={6}></Row>
+      <Row
+        key={0}
+        guessWord={guessWord}
+        rowIndex={0}
+        currentRow={currentRow}
+        isCurrentRow={isCurrentRow}
+      ></Row>
+      <Row
+        key={1}
+        guessWord={guessWord}
+        rowIndex={1}
+        currentRow={currentRow}
+        isCurrentRow={isCurrentRow}
+      ></Row>
+      <Row
+        key={2}
+        guessWord={guessWord}
+        rowIndex={2}
+        currentRow={currentRow}
+        isCurrentRow={isCurrentRow}
+      ></Row>
+      <Row
+        key={3}
+        guessWord={guessWord}
+        rowIndex={3}
+        currentRow={currentRow}
+        isCurrentRow={isCurrentRow}
+      ></Row>
+      <Row
+        key={4}
+        guessWord={guessWord}
+        rowIndex={4}
+        currentRow={currentRow}
+        isCurrentRow={isCurrentRow}
+      ></Row>
+      <Row
+        key={5}
+        guessWord={guessWord}
+        rowIndex={5}
+        currentRow={currentRow}
+        isCurrentRow={isCurrentRow}
+      ></Row>
       {correctString}
     </div>
   );
