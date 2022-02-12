@@ -5,7 +5,9 @@ import WordGrid from "./Components/WordGrid";
 function App() {
   return (
     <div className="App">
-      <WordGrid></WordGrid>
+      <div className="center">
+        <WordGrid></WordGrid>
+      </div>
     </div>
   );
 }

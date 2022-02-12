@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, KeyboardEvent } from "react";
+import { useCallback } from "react";
 import Letter from "./Letter";
 
 type RowProps = {
@@ -25,15 +26,35 @@ const Row: React.FC<RowProps> = ({ guessWord, rowIndex, currentRow }) => {
   const currId = useRef(0);
   const divRef = useRef<HTMLDivElement>(null);
 
+  const handleRowFocus = () => {
+    if (divRef.current && currentRow === rowIndex) {
+      divRef.current.focus();
+    }
+  };
+
+  const handleClickOutside = useCallback((event: any) => {
+    if (
+      divRef.current &&
+      !divRef.current.contains(event.target) &&
+      currentRow === rowIndex
+    ) {
+      handleRowFocus();
+    }
+  }, []);
+
   useEffect(() => {
-    console.log("row index: " + rowIndex + "currentRow: " + currentRow);
     if (currentRow === rowIndex && divRef.current) {
+      console.log(divRef.current);
       setIsActive(true);
       divRef.current.focus();
     } else if (divRef.current) {
       divRef.current.blur();
     }
-  }, [currentRow, rowIndex]);
+    document.addEventListener("click", handleClickOutside, true);
+    return () => {
+      document.removeEventListener("click", handleClickOutside, true);
+    };
+  }, [currentRow, rowIndex, handleClickOutside]);
 
   const handleKeyPress = (e: KeyboardEvent) => {
     let newLetters;
